@@ -1,0 +1,14 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v1.4.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+-   repo: local
+    hooks:
+    -   id: no-tabs
+        name: no tabs
+        language: pygrep
+        entry: '\t'
+        types: [text]

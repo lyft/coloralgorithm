@@ -4,20 +4,20 @@ import bezier from 'bezier-easing'
 
 function distribute(value, rangeA, rangeB) {
 
-	const [fromLow, fromHigh] = Array.from(rangeA)
-	const [toLow, toHigh] = Array.from(rangeB)
+  const [fromLow, fromHigh] = Array.from(rangeA)
+  const [toLow, toHigh] = Array.from(rangeB)
 
-	const result = toLow + (((value - fromLow) / (fromHigh - fromLow)) * (toHigh - toLow));
+  const result = toLow + (((value - fromLow) / (fromHigh - fromLow)) * (toHigh - toLow));
 
-	if (toLow < toHigh) {
-		if (result < toLow) { return toLow }
-		if (result > toHigh) { return toHigh }
-	} else {
-		if (result > toLow) { return toLow }
-		if (result < toHigh) { return toHigh }
-	}
+  if (toLow < toHigh) {
+    if (result < toLow) { return toLow }
+    if (result > toHigh) { return toHigh }
+  } else {
+    if (result > toLow) { return toLow }
+    if (result < toHigh) { return toHigh }
+  }
 
-	return result;
+  return result;
 }
 
 export default function({specs}) {
@@ -33,9 +33,9 @@ export default function({specs}) {
     return array
   }
 
-	var lum_array = generateNumberOfSteps(Curves[specs.lum_curve], specs.steps)
-	var sat_array = generateNumberOfSteps(Curves[specs.sat_curve], specs.steps)
-	var hue_array = generateNumberOfSteps(Curves[specs.hue_curve], specs.steps)
+  var lum_array = generateNumberOfSteps(Curves[specs.lum_curve], specs.steps)
+  var sat_array = generateNumberOfSteps(Curves[specs.sat_curve], specs.steps)
+  var hue_array = generateNumberOfSteps(Curves[specs.hue_curve], specs.steps)
   var lum_array_adjusted = []
   var sat_array_adjusted = []
   var hue_array_adjusted = []
@@ -96,7 +96,7 @@ export default function({specs}) {
       lum: chroma(hex).hsv()[2],
       hsv: chroma(hex).hsv(),
       hsl: chroma(hex).hsl(),
-			rgb: chroma(hex).rgb(),
+      rgb: chroma(hex).rgb(),
       hueRange: [specs.hue_start, specs.hue_end],
       steps:specs.steps,
       label:specs.modifier * index,
@@ -104,7 +104,7 @@ export default function({specs}) {
       contrastWhite:contrastWhite,
       displayColor:displayColor,
     }
-		colorMap.push(colorObj)
+    colorMap.push(colorObj)
   }
 
   return colorMap
