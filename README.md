@@ -1,2 +1,2 @@
 # coloralgorithm
-Javacript function to produce color sets
+Javascript function to produce color sets
