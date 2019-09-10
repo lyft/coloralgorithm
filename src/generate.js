@@ -1,95 +1,89 @@
-import chroma from 'chroma-js'
-import * as Curves from './curves.js'
-import bezier from 'bezier-easing'
+/* eslint-disable camelcase */
+import chroma from 'chroma-js';
+
+import * as Curves from './curves';
 
 function distribute(value, rangeA, rangeB) {
-
-  const [fromLow, fromHigh] = Array.from(rangeA)
-  const [toLow, toHigh] = Array.from(rangeB)
+  const [fromLow, fromHigh] = Array.from(rangeA);
+  const [toLow, toHigh] = Array.from(rangeB);
 
   const result = toLow + (((value - fromLow) / (fromHigh - fromLow)) * (toHigh - toLow));
 
   if (toLow < toHigh) {
-    if (result < toLow) { return toLow }
-    if (result > toHigh) { return toHigh }
+    if (result < toLow) { return toLow; }
+    if (result > toHigh) { return toHigh; }
   } else {
-    if (result > toLow) { return toLow }
-    if (result < toHigh) { return toHigh }
+    if (result > toLow) { return toLow; }
+    if (result < toHigh) { return toHigh; }
   }
 
   return result;
 }
 
-export default function({specs}) {
-
+export default function ({ specs }) {
   function generateNumberOfSteps(curve, steps) {
-    var array = []
-    for (var step in Array.from(Array(steps).keys())) {
-      const value = curve(step/ (steps - 1))
-      array.push(value)
+    const array = [];
 
-    }
-    array.reverse()
-    return array
+    Array.from(Array(steps).keys()).forEach((step) => {
+      const value = curve(step / (steps - 1));
+      array.push(value);
+    });
+    array.reverse();
+    return array;
   }
 
-  var lum_array = generateNumberOfSteps(Curves[specs.lum_curve], specs.steps)
-  var sat_array = generateNumberOfSteps(Curves[specs.sat_curve], specs.steps)
-  var hue_array = generateNumberOfSteps(Curves[specs.hue_curve], specs.steps)
-  var lum_array_adjusted = []
-  var sat_array_adjusted = []
-  var hue_array_adjusted = []
+  let lum_array = generateNumberOfSteps(Curves[specs.lum_curve], specs.steps);
+  let sat_array = generateNumberOfSteps(Curves[specs.sat_curve], specs.steps);
+  let hue_array = generateNumberOfSteps(Curves[specs.hue_curve], specs.steps);
+  const lum_array_adjusted = [];
+  const sat_array_adjusted = [];
+  const hue_array_adjusted = [];
 
-  for (var index in lum_array){
-    const step = lum_array[index]
-    lum_array_adjusted.push(distribute(step, [0, 1], [specs.lum_end * .01, specs.lum_start *.01], true))
-  }
+  lum_array.forEach((step) => {
+    lum_array_adjusted.push(
+      distribute(step, [0, 1], [specs.lum_end * 0.01, specs.lum_start * 0.01], true),
+    );
+  });
+
+  sat_array.forEach((step) => {
+    let sat_step = distribute(step, [0, 1], [specs.sat_start * 0.01, specs.sat_end * 0.01], true);
+
+    sat_step *= (specs.sat_rate * 0.01);
+    sat_array_adjusted.push(sat_step);
+  });
+
+  hue_array.forEach((step) => {
+    hue_array_adjusted.push(distribute(step, [0, 1], [specs.hue_start, specs.hue_end]));
+  });
+
+  sat_array_adjusted.reverse();
+  hue_array_adjusted.reverse();
+
+  lum_array = lum_array_adjusted;
+  sat_array = sat_array_adjusted;
+  hue_array = hue_array_adjusted;
+
+  const colorMap = [];
 
 
-  for (var index in sat_array ){
-    const step = sat_array[index]
-    var sat_step = distribute(step, [0, 1], [specs.sat_start * .01, specs.sat_end *.01], true)
+  lum_array.forEach((step, i) => {
+    const params = {
+      hue: hue_array[i],
+      saturation: sat_array[i],
+      luminosity: lum_array[i],
+    };
 
-    sat_step = sat_step * (specs.sat_rate *.01)
-    sat_array_adjusted.push(sat_step)
-  }
+    if (params.saturation > 1) { params.saturation = 1; }
 
-  for (var index in hue_array){
-    const step = hue_array[index]
-    hue_array_adjusted.push(distribute(step, [0,1], [specs.hue_start, specs.hue_end]))
-  }
+    const hex = chroma(chroma.hsv([params.hue, params.saturation, params.luminosity]));
 
-  sat_array_adjusted.reverse()
-  hue_array_adjusted.reverse()
+    const contrastWhite = chroma.contrast(hex, 'white').toFixed(2);
+    const contrastBlack = chroma.contrast(hex, 'black').toFixed(2);
 
-  lum_array = lum_array_adjusted
-  sat_array = sat_array_adjusted
-  hue_array = hue_array_adjusted
+    let displayColor = '';
+    if (contrastWhite >= 4.5) { displayColor = 'white'; } else { displayColor = 'black'; }
 
-  var colorMap = []
-
-  for (var index in lum_array) {
-
-    var step = lum_array[index]
-
-    var params = {
-      hue:hue_array[index],
-      saturation:sat_array[index],
-      luminosity:lum_array[index],
-    }
-
-    if (params.saturation >  1) {params.saturation = 1}
-
-    var hex = chroma(chroma.hsv([params.hue, params.saturation, params.luminosity]))
-    var hexRGB = chroma(chroma.hsv([params.hue, params.saturation, params.luminosity])).rgb()
-
-    const contrastWhite = chroma.contrast(hex, "white").toFixed(2)
-    const contrastBlack = chroma.contrast(hex, "black").toFixed(2)
-
-    var displayColor = ""
-    if (contrastWhite >= 4.5) { displayColor = "white" } else { displayColor = "black" }
-
-    var colorObj = {
+    const colorObj = {
       hex: chroma(hex).hex(),
       hue: chroma(hex).hsv()[0],
       sat: chroma(hex).hsv()[1],
@@ -98,14 +92,14 @@ export default function({specs}) {
       hsl: chroma(hex).hsl(),
       rgb: chroma(hex).rgb(),
       hueRange: [specs.hue_start, specs.hue_end],
-      steps:specs.steps,
-      label:specs.modifier * index,
-      contrastBlack:contrastBlack,
-      contrastWhite:contrastWhite,
-      displayColor:displayColor,
-    }
-    colorMap.push(colorObj)
-  }
+      steps: specs.steps,
+      label: specs.modifier * i,
+      contrastBlack,
+      contrastWhite,
+      displayColor,
+    };
+    colorMap.push(colorObj);
+  });
 
-  return colorMap
+  return colorMap;
 }

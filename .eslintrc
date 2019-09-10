@@ -1,0 +1,10 @@
+{
+  "extends": [
+    "airbnb",
+  ],
+  "rules": {
+    "import/prefer-default-export": 0,
+    "import/no-named-as-default": 0,
+    "react/default-props-match-prop-types": 0,
+  }
+}
