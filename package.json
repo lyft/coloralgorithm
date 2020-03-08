@@ -1,5 +1,5 @@
 {
-  "name": "@elemental-design/coloralgorithm",
+  "name": "@lyft/coloralgorithm",
   "version": "1.0.0",
   "description": "Creates color sets",
   "main": "dist/bundle.umd.js",
