@@ -1,4 +1,4 @@
-# coloralgorithm
+# coloralgorithms
 
 A JavaScript function for producing color sets. Used to build Lyft's color system (Spectrum) and power [ColorBox](https://www.colorbox.io/).
 
